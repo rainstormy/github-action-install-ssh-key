@@ -6,7 +6,7 @@ inputs:
   known-hosts:
     description: A newline-separated list of trusted remote host keys gathered in advance, e.g. by the ssh-keyscan utility.
     required: true
-  private-key:
+  the-private-key:
     description: The private SSH key to be stored and added to the SSH agent on the GitHub Actions runner.
     required: true
   private-key-filename:
@@ -19,48 +19,48 @@ runs:
   steps:
     - name: Validate input parameters # See https://github.com/actions/runner/issues/1070.
       run: |
-        if [[ -z "$KNOWN_HOSTS" ]]; then
+        if [[ -z $KNOWN_HOSTS ]]; then
           echo "Input parameter 'known-hosts' must be non-empty."
           exit 2
         fi
-        if [[ -z "$PRIVATE_KEY" ]]; then
-          echo "Input parameter 'private-key' must be non-empty."
+        if [[ -z $THE_PRIVATE_KEY ]]; then
+          echo "Input parameter 'the-private-key' must be non-empty."
           exit 2
         fi
-        if [[ -z "$PRIVATE_KEY_FILENAME" ]]; then
+        if [[ -z $PRIVATE_KEY_FILENAME ]]; then
           echo "Input parameter 'private-key-filename' must be non-empty."
           exit 2
         fi
       env:
         KNOWN_HOSTS: ${{ inputs.known-hosts }}
-        PRIVATE_KEY: ${{ inputs.private-key }}
+        THE_PRIVATE_KEY: ${{ inputs.the-private-key }}
         PRIVATE_KEY_FILENAME: ${{ inputs.private-key-filename }}
       shell: bash
     - name: Register the known host keys
       run: |
         mkdir ~/.ssh
-        echo "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+        echo $KNOWN_HOSTS > ~/.ssh/known_hosts
         chmod 644 ~/.ssh/known_hosts
       env:
         KNOWN_HOSTS: ${{ inputs.known-hosts }}
       shell: bash
     - name: Install the private key
       run: |
-        echo "$PRIVATE_KEY" > "~/.ssh/$PRIVATE_KEY_FILENAME"
-        chmod 600 "~/.ssh/$PRIVATE_KEY_FILENAME"
+        echo $THE_PRIVATE_KEY > ~/.ssh/$PRIVATE_KEY_FILENAME
+        chmod 600 ~/.ssh/$PRIVATE_KEY_FILENAME
       env:
-        PRIVATE_KEY: ${{ inputs.private-key }}
+        THE_PRIVATE_KEY: ${{ inputs.the-private-key }}
         PRIVATE_KEY_FILENAME: ${{ inputs.private-key-filename }}
       shell: bash
     - name: Start the SSH agent
       run: |
-        eval "$(ssh-agent -s)"
+        eval $(ssh-agent -s)
         echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
         echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> $GITHUB_ENV
       shell: bash
     - name: Add the private key to the SSH agent
       run: |
-        ssh-add "~/.ssh/$PRIVATE_KEY_FILENAME"
+        ssh-add ~/.ssh/$PRIVATE_KEY_FILENAME
       env:
         PRIVATE_KEY_FILENAME: ${{ inputs.private-key-filename }}
       shell: bash
