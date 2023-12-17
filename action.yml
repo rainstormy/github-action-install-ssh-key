@@ -39,14 +39,14 @@ runs:
     - name: Register the known host keys
       run: |
         mkdir ~/.ssh
-        echo $KNOWN_HOSTS > ~/.ssh/known_hosts
+        echo "$KNOWN_HOSTS" > ~/.ssh/known_hosts
         chmod 644 ~/.ssh/known_hosts
       env:
         KNOWN_HOSTS: ${{ inputs.known-hosts }}
       shell: bash
     - name: Install the private key
       run: |
-        echo $THE_PRIVATE_KEY > ~/.ssh/$PRIVATE_KEY_FILENAME
+        echo "$THE_PRIVATE_KEY" > ~/.ssh/$PRIVATE_KEY_FILENAME
         chmod 600 ~/.ssh/$PRIVATE_KEY_FILENAME
       env:
         THE_PRIVATE_KEY: ${{ inputs.the-private-key }}
